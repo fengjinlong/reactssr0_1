@@ -1,6 +1,6 @@
 import { createStore } from 'redux'
 const state = {
-  data: '空'
+  data: ''
 }
 
 function reducer (initState = state, action) {

@@ -5,6 +5,9 @@ import App from '../shared/App'
 import {Provider} from 'react-redux'
 import { createClientStore } from '../shared/store/index'
 // 接受createStore返回的store(r, win)
+
+// import { createStore } from 'redux'
+// return createStore(reducer, window.REDUX_DATA)
 const store = createClientStore()
 
 ReactDOM.hydrate(

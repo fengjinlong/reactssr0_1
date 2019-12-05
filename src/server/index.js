@@ -8,7 +8,6 @@ import { createServerStore } from "../shared/store/index";
 import { matchRoutes } from "react-router-config";
 import {Provider} from 'react-redux'
 import routes from "../shared/Routes";
-import { resolve } from "dns";
 
 
 
@@ -16,19 +15,34 @@ import { resolve } from "dns";
 const app = express();
 app.use('/aa', express.static('public'))
 
-const routersArr = ['/', '/about', '/home']
+const routersArr = ['/', '/about', '/other']
 app.get(routersArr, function (req, res) {
   const matchedRouters = matchRoutes(routes, req.path)
   // 不带win
   const store = createServerStore()
   // 可能有多个请求
   const promises = []
-  console.log('matchedRouters')
   console.log(matchedRouters)
+  // [ 
+  //   { 
+  //     route: { 
+  //       path: '/about', 
+  //       component: [Object], 
+  //       loadData: [Function] 
+  //     },
+  //     match: { 
+  //       path: '/about', 
+  //       url: '/about', 
+  //       isExact: true, 
+  //       params: {} 
+  //     } 
+  //   }
+  // ]
   matchedRouters.forEach(item => {
     if (item.route.loadData) {
       promises.push(
         new Promise(resolve => {
+          
           item.route.loadData(store).then(resolve)
         })
       )

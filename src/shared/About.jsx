@@ -6,10 +6,12 @@ class About extends React.Component {
     super()
   }
   componentDidMount () {
-    // Axios.get('http://localhost:3000/api').then(res => {
-    //   console.log(res)
-    //   this.setState({data: res.data.data})
-    // })
+    if (!this.props.data) {
+      Axios.get('http://localhost:3000/api').then(res => {
+        this.props.changeData(res.data.data);
+      })
+    }
+    
   }
   render () {
     return (
@@ -21,7 +23,7 @@ class About extends React.Component {
   }
 }
 About.loadData = store => {
-  return Axios.get("http://localhost:3001/getData").then(res => {
+  return Axios.get("http://localhost:3000/api").then(res => {
     store.dispatch({
       type: "CHANGE_DATA",
       payload: res.data.data
