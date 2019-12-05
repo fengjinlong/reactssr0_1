@@ -4,18 +4,20 @@ import { connect } from 'react-redux'
 class About extends React.Component {
   constructor () {
     super()
-    this.state = {
-      data: ''
-    }
   }
   componentDidMount () {
-    Axios.get('http://localhost:3000/api').then(res => {
-      console.log(res)
-      this.setState({data: res.data.data})
-    })
+    // Axios.get('http://localhost:3000/api').then(res => {
+    //   console.log(res)
+    //   this.setState({data: res.data.data})
+    // })
   }
   render () {
-  return <div>{this.state.data}</div>
+    return (
+       <div>
+        <p>About</p>
+        <p>数据：{this.props.data}</p>
+      </div>
+    )
   }
 }
 About.loadData = store => {

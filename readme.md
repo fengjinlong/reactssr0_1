@@ -22,6 +22,55 @@ npm install concurrently --save
 
 4 但是，您提供给express.static函数的路径是相对于您启动node过程的目录的
 
+5 如果服务端渲染后，在跳转一个有服务端的页面的spa，此时不会触发服务端的数据初始化，所以spa需要判断
+```
+componentDidMount() {
+    if (this.props.data === "空") {
+      Axios.get("http://localhost:3001/getData").then(res => {
+        this.props.changeData(res.data.data);
+      });
+    }
+  }
+```
+
+6 server 路由 匹配
+```
+import { matchRoutes } from "react-router-config";
+const matchedRouters = matchRoutes(routes, req.path)
+
+matchedRouters.forEach(item => {
+  //遍历需要渲染数据的路由，并进行渲染
+    if (item.route.loadData) {
+      promises.push(
+        new Promise(resolve => {
+          item.route.loadData(store).then(resolve)
+        })
+      );
+    }
+  });
+```
+
+7 不同的路由渲染
+```
+import { StaticRouter } from "react-router-dom";
+const content = renderToString(
+    <StaticRouter location= {req.url}>
+      <App />
+    </StaticRouter>
+  )
+
+
+import { BrowserRouter } from "react-router-dom";
+ReactDOM.hydrate(
+  <Provider store={store}>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </Provider>,
+  document.getElementById("root")
+);
+```
+
 
 
 

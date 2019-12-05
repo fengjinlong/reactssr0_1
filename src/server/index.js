@@ -1,34 +1,62 @@
 import express from "express";
 import App from '../shared/App'
-const app = express();
 import React from 'react'
-import {
-  renderToString
-} from 'react-dom/server'
-import {
-  StaticRouter
-} from 'react-router-dom'
+import { renderToString } from "react-dom/server";
+import { StaticRouter } from "react-router-dom";
 
-// app.use(express.static("public"));
-// app.use(express.static('public'))
-// app.use('/aa', express.static(path.join(__dirname,"public")))
+import { createServerStore } from "../shared/store/index";
+import { matchRoutes } from "react-router-config";
+import {Provider} from 'react-redux'
+import routes from "../shared/Routes";
+import { resolve } from "dns";
+
+
+
+
+const app = express();
 app.use('/aa', express.static('public'))
 
-app.get(['/', '/about', '/home'], function (req, res) {
-  const content = renderToString( <StaticRouter location= {
-      req.url
-    }><App /></StaticRouter>
-  )
-  res.end(`
-  <!DOCTYPE html>
-    <html>
-      <head></head>
-      <body>
-        <div id="root">${content}</div>
-        <script src="/aa/bundle.js"></script>
-      </body>
-    </html>
-  `)
+const routersArr = ['/', '/about', '/home']
+app.get(routersArr, function (req, res) {
+  const matchedRouters = matchRoutes(routes, req.path)
+  // 不带win
+  const store = createServerStore()
+  // 可能有多个请求
+  const promises = []
+  console.log('matchedRouters')
+  console.log(matchedRouters)
+  matchedRouters.forEach(item => {
+    if (item.route.loadData) {
+      promises.push(
+        new Promise(resolve => {
+          item.route.loadData(store).then(resolve)
+        })
+      )
+    }
+  })
+
+  Promise.all(promises).then(() => {
+    const content = renderToString(
+      <Provider store={store}>
+        <StaticRouter location= {req.url}>
+          <App />
+        </StaticRouter>
+      </Provider>
+    )
+    res.end(`
+      <!DOCTYPE html>
+        <html>
+          <head></head>
+          <body>
+            <div id="root">${content}</div>
+            <script>
+                  window.REDUX_DATA = ${JSON.stringify(store.getState())}
+                </script>
+            <script src="/aa/bundle.js"></script>
+          </body>
+        </html>
+      `)
+  })
 })
 
 app.get('/api', (req, res) => {
